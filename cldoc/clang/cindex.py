@@ -3944,7 +3944,6 @@ class Config(object):
         return lib
 
     def get_filename(self):
-        return "/usr/lib/libclang.so.16"
         if Config.library_file:
             return Config.library_file
 
@@ -3966,7 +3965,6 @@ class Config(object):
 
     def get_cindex_library(self):
         try:
-            sys.stdout.write("Load library " + self.get_filename() + "\n")
             library = cdll.LoadLibrary(self.get_filename())
         except OSError as e:
             msg = (
