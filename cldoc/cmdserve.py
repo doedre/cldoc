@@ -13,26 +13,26 @@
 from __future__ import absolute_import
 
 import subprocess, threading, time, sys, argparse, os
-import SimpleHTTPServer, SocketServer
+import http.server, socketserver
 
-class Server(SocketServer.TCPServer):
+class Server(socketserver.TCPServer):
     allow_reuse_address = True
 
 def handler_bind(directory):
-    class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    class Handler(http.server.SimpleHTTPRequestHandler):
         def end_headers(self):
             self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
             self.send_header('Pragma', 'no-cache')
             self.send_header('Expires', '0')
 
-            SimpleHTTPServer.SimpleHTTPRequestHandler.end_headers(self)
+            http.server.SimpleHTTPRequestHandler.end_headers(self)
 
         def translate_path(self, path):
             while path.startswith('/'):
                 path = path[1:]
 
             path = os.path.join(directory, path)
-            return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(self, path)
+            return http.server.SimpleHTTPRequestHandler.translate_path(self, path)
 
         def log_message(self, format, *args):
             pass
