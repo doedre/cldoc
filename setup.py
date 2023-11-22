@@ -79,13 +79,20 @@ class cldoc_generate(Command):
             sys.exit(1)
 
         for f in coffee_files:
-            with open(os.path.join('html', 'coffee', f)) as ff:
-                sp.stdin.write(ff.read())
+            with open(os.path.join('html', 'coffee', f), "r") as ff:
+                try:
+                    sp.stdin.write(ff.read().encode())
+                except IOError as e:
+                    if e.errno == errno.PIPE or e.errno == errno.EINVAL:
+                        print('pipe error')
+                        break
+                    else:
+                        raise
 
         sp.stdin.close()
 
         with open('html/javascript/cldoc.js', 'w') as out:
-            out.write(sp.stdout.read())
+            out.write(sp.stdout.read().decode())
 
         sp.wait()
 
@@ -123,7 +130,7 @@ class cldoc_generate(Command):
         except:
             pass
 
-        fout = file('cldoc/data/index.html', 'w')
+        fout = open('cldoc/data/index.html', 'w')
 
         proc = subprocess.Popen(args, stdout=fout)
         proc.wait()
