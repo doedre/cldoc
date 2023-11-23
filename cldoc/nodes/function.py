@@ -123,9 +123,11 @@ class Function(Node):
         self._comment.params = {}
 
         for pre in self._parsed_comment.preparam:
+            log.info(pre.name)
             self._comment.params[pre.name] = pre.description
 
         for post in self._parsed_comment.postparam:
+            log.info(post.name)
             if post.name == 'return':
                 self._comment.returns = post.description
 

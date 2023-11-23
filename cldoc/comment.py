@@ -470,25 +470,27 @@ class CommentsDatabase(object):
 from pyparsing import *
 
 class Parser:
-    ParserElement.setDefaultWhitespaceChars(' \t\r')
+    ParserElement.setDefaultWhitespaceChars(' \t\r\n')
 
+    param_token = Char('@')
     identifier = Word(alphas + '_', alphanums + '_')
+    skip = ZeroOrMore(White()).suppress()
+    text_body = restOfLine + ZeroOrMore(lineEnd + ~(param_token | lineEnd) + Regex('[^\n]+')) + lineEnd.suppress()
 
-    brief = restOfLine.setResultsName('brief') + lineEnd
+    brief = NotAny(param_token) + restOfLine('brief') + lineEnd + skip
 
-    paramdesc = restOfLine + ZeroOrMore(lineEnd + ~('@' | lineEnd) + Regex('[^\n]+')) + lineEnd.suppress()
-    param = '@' + identifier.setResultsName('name') + White() + Combine(paramdesc).setResultsName('description')
+    param = param_token + identifier('name') + skip + Combine(text_body)('description')
 
-    preparams = ZeroOrMore(param.setResultsName('preparam', listAllMatches=True))
-    postparams = ZeroOrMore(param.setResultsName('postparam', listAllMatches=True))
+    preparams = ZeroOrMore(Group(param)('preparam*'))
+    postparams = ZeroOrMore(Group(param)('postparam*'))
 
-    bodyline = NotAny('@') + (lineEnd | (Regex('[^\n]+') + lineEnd))
-    body = ZeroOrMore(lineEnd) + Combine(ZeroOrMore(bodyline)).setResultsName('body')
+    body = skip + Combine(text_body)('body')
 
-    doc = brief + preparams + body + postparams
+    doc = skip + (brief | "") + (preparams | "") + (body | "") + (postparams | "")
 
     @staticmethod
     def parse(s):
-        return Parser.doc.parseString(s)
+        Parser.doc.parse_with_tabs()
+        return Parser.doc.parse_string(s)
 
 # vi:ts=4:et

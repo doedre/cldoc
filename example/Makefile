@@ -5,7 +5,7 @@ OBJECTS = ${SOURCES:.cc=.o}
 CXXFLAGS = -I. -fPIC
 TARGET = libtransport.so
 
-COMMON_DOC_FLAGS = --report --merge docs --output html $(SOURCES) $(HEADERS)
+COMMON_DOC_FLAGS = --loglevel info --report --merge docs --output html $(SOURCES) $(HEADERS)
 
 all: $(TARGET)
 
