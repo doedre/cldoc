@@ -484,7 +484,7 @@ class Parser:
     preparams = ZeroOrMore(Group(param)('preparam*'))
     postparams = ZeroOrMore(Group(param)('postparam*'))
 
-    body = skip + Combine(text_body)('body')
+    body = skip + Combine(SkipTo('@' | stringEnd))('body')
 
     doc = skip + (brief | "") + (preparams | "") + (body | "") + (postparams | "")
 

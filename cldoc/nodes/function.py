@@ -17,6 +17,7 @@ from .ctype import Type
 from ..clang import cindex
 from ..comment import Comment
 from ..comment import Parser
+from .. import log
 
 import re
 
