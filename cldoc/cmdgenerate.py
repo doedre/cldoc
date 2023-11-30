@@ -88,6 +88,9 @@ def run(args):
     parser.add_argument('--custom-css', default=[], metavar='FILES', action='append',
                           help='specify additional css files to be merged into the html (only for when --output is html)')
 
+    parser.add_argument('--libclang', default='',
+                          help='specify path to custom libclang.so library')
+
     parser.add_argument('files', nargs='+', help='files to parse')
 
     restargs = args[sep + 1:]
@@ -101,6 +104,8 @@ def run(args):
     log.setLevel(opts.loglevel)
 
     from . import tree
+
+    tree.init_libclang(opts.libclang)
 
     if not opts.output:
         sys.stderr.write("Please specify the output directory\n")

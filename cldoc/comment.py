@@ -472,7 +472,7 @@ from pyparsing import *
 class Parser:
     ParserElement.setDefaultWhitespaceChars(' \t\r\n')
 
-    param_token = Char('@')
+    param_token = '@'
     identifier = Word(alphas + '_', alphanums + '_')
     skip = ZeroOrMore(White()).suppress()
     text_body = restOfLine + ZeroOrMore(lineEnd + ~(param_token | lineEnd) + Regex('[^\n]+')) + lineEnd.suppress()
@@ -490,7 +490,6 @@ class Parser:
 
     @staticmethod
     def parse(s):
-        Parser.doc.parse_with_tabs()
-        return Parser.doc.parse_string(s)
+        return Parser.doc.parseString(s)
 
 # vi:ts=4:et

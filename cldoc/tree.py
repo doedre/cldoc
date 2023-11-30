@@ -33,47 +33,54 @@ import os, sys, re, glob, platform
 
 from ctypes.util import find_library
 
-if platform.system() == 'Darwin':
-    libclangs = [
-        '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib',
-        '/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
-    ]
 
-    found = False
+def init_libclang(library_file=''):
 
-    for libclang in libclangs:
-        if os.path.exists(libclang):
-            cindex.Config.set_library_path(os.path.dirname(libclang))
-            found = True
-            break
+    if library_file == '':
+        if platform.system() == 'Darwin':
+            libclangs = [
+                '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib',
+                '/Library/Developer/CommandLineTools/usr/lib/libclang.dylib'
+            ]
 
-    if not found:
-        lname = find_library("clang")
+            found = False
 
-        if not lname is None:
-            cindex.Config.set_library_file(lname)
-else:
-    versions = [None, '7.0', '6.0', '5.0', '4.0', '3.9', '3.8', '3.7', '3.6', '3.5', '3.4', '3.3', '3.2']
+            for libclang in libclangs:
+                if os.path.exists(libclang):
+                    cindex.Config.set_library_path(os.path.dirname(libclang))
+                    found = True
+                    break
 
-    for v in versions:
-        name = 'clang'
+            if not found:
+                lname = find_library("clang")
 
-        if not v is None:
-            name += '-' + v
+                if not lname is None:
+                    cindex.Config.set_library_file(lname)
+        else:
+            versions = [None, '7.0', '6.0', '5.0', '4.0', '3.9', '3.8', '3.7', '3.6', '3.5', '3.4', '3.3', '3.2']
 
-        lname = find_library(name)
+            for v in versions:
+                name = 'clang'
 
-        if not lname is None:
-            cindex.Config.set_library_file(lname)
-            break
+                if not v is None:
+                    name += '-' + v
 
-testconf = cindex.Config()
+                lname = find_library(name)
 
-try:
-    testconf.get_cindex_library()
-except cindex.LibclangError as e:
-    sys.stderr.write("\nFatal: Failed to locate libclang library. cldoc depends on libclang for parsing sources, please make sure you have libclang installed.\n" + str(e) + "\n\n")
-    sys.exit(1)
+                if not lname is None:
+                    cindex.Config.set_library_file(lname)
+                    break
+    else:
+        cindex.Config.set_library_file(library_file)
+
+    testconf = cindex.Config()
+
+    try:
+        testconf.get_cindex_library()
+    except cindex.LibclangError as e:
+        sys.stderr.write("\nFatal: Failed to locate libclang library. cldoc depends on libclang for parsing sources, please make sure you have libclang installed.\n" + str(e) + "\n\n")
+        sys.exit(1)
+
 
 class Tree(documentmerger.DocumentMerger):
     def __init__(self, files, flags):
